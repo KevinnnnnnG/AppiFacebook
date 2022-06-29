@@ -1,5 +1,5 @@
 const API = "https://graph.facebook.com/";
-const token ="EAAIKN9Hj2f0BADd9GQCp5tcERyjAWlCyaVhErKdQV6dLFS4D9CoZAZAGPIUOBnOXJSfpJZARmqy5sKZBLLyZCnq5KDttNeNvOZBqAJ8KQhjotlmzdFZAcyXD34zMS8dSFFSwhodPUjLyjCqWxoUFnBtFZCrTC32lUkIf2i7ZChPRdJwZDZD"
+const TOKEN = "?fields=id,name,email,picture&access_token=EAAIKN9Hj2f0BAB61nTlhGWeI3lZB2MvF9GtVOCzpfUBcRG7SrBj3XbA5zeAF9LTyNkJHj0MiMJbv4VeKlmArvfC3nRkd3lOkd58vrrMSH20tBCK4gqwVGtldi8xX7BUZAFYGpMiomI2ePRmwxZAri4kgsB24uZCDqKsE3i18QQZDZD"
 // Se corto la funcion y se pega en el metodo
 
 const app1 = Vue.createApp({
@@ -8,6 +8,28 @@ const app1 = Vue.createApp({
           busqueda : null,
           result : null,
           error : null,
+          favoritos: new Map()
+        }
+      },
+
+      create(){
+        const FavoritosGuardados = JSON.parse(window.localStorage.getItem("misfavoritos"))
+         if (FavoritosGuardados?.length){
+          const favoritosNew =  new Map (
+           FavoritosGuardados.map(alias=>[alias.id, alias])
+          )
+          this.favoritos = favoritosNew
+        }
+      },
+
+      computed:{
+        estaFavoritos(){
+          return this.favoritos.has(this.result.id);
+        },
+        TodosFavoritos (){
+          // Pasamos la informaion a un autentico array
+          return Array.from(this.favoritos.values());
+          // el metodo values() traera los valores sin las clave
         }
       },
 
@@ -17,7 +39,7 @@ const app1 = Vue.createApp({
           // esta supeditado depende del error
           this.result = this.error = null
           try {
-            const response = await fetch(API + this.busqueda + "?fields=id,name,email,picture&access_token=" + token)
+            const response = await fetch(API + this.busqueda  + TOKEN)
             if (!response.ok) throw new Error("Usuario no encontrado")
             console.log(response)
             //ahora quiero traer la info en formato json
@@ -27,39 +49,29 @@ const app1 = Vue.createApp({
           } catch (error) {
             this.error = error
           } 
+          finally {
+            this.busqueda = null
+          }
+        }, // Aqui se cerro el metodo buscar   
+        addFavorito(){
+          this.favoritos.set(this.result.id , this.result)
+          this.actualizarStorage()
+        },
 
-        }// Aqui se cerro el metodo buscar   
+        RemoveraFavorito(){
+          this.favoritos.delete(this.result.id )
+          this.actualizarStorage()
+        },
+        actualizarStorage(){
+          window.localStorage.setItem('misfavoritos', JSON.stringify (this.TodosFavoritos))
+        },
+
+        mostrarFavorito(parametro){
+          // tipo array con objetos de javaScript o otro ripo json
+          this.result = parametro
+
+        }
       }
 }) // Montamos esta informacion en el html o en el div app
-
-/*const Api =" https://graph.facebook.com/"
-const token ="EAAIKN9Hj2f0BAIsIZAZCbf2xillBUyOnQQ4SytD0fWj30wzdZAM9RirceOwnSa1iWGaV8ZBSerVbFbdZAjh4LC5MGpLAocgeXu3t8Ovz01p9VlXXedZC36KXbz0Fp55Fi8mVEhEtpCeLYWkPu69hfzkXo4d3gFwd5k1gna4HZBICgZDZD"
-
-const app = Vue.createApp({
-    data() {
-        return {
-            busqueda : null,
-            result : null,
-            error : null,
-        }
-    },
-    methods: {
-        async Buscar(){
-            this.result = this.error = null
-            try {
-                const response = await fetch(Api + this.busqueda  + "?fields=id,name,email,picture&access_token=" + token)
-                if (!response.ok) throw new Error("Usuario no encontrado")
-                const data = await response.json()
-                console.log(data)
-                this.result = data 
-            }
-            catch {
-                this.error = error
-            }
-      }
-    }
-})
-        v-brind:src=""
-         */
 
 

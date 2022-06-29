@@ -19,7 +19,12 @@
 </head>
 <body class="h-screen bg-gray-100">
     <section class="md:h-full flex items-center text-gray-600" id="app">
-        <div class="container px-10 py-30 mx-20">         
+        <div class="container px-10 py-30 mx-20"> 
+            <div v-for="alias in TodosFavoritos" :key="alias.id">
+                <a @click.prevent="mostrarFavorito(alias)" href="">
+                    <img v-bind:src="alias.picture.data.url" alt="" class="favorite__avatar">
+                </a>
+            </div>  
             <div class="text-center mb-12">
                 <h4 class="text-3xl md:text-3xl text-gray-700 font-semibold">Api usuarios de Facebook</h4>
             </div>
@@ -36,6 +41,8 @@
             <div class="flex flex-wrap -m-7">
                 <div class="p-4 sm:w-1/2 lg:w-1/3">
                     <div class="h:-18 w-80 h-full border-2 border-gray-200 border-opacity-60 rounded-lg overflow-hidden" v-if="result">
+                        <a v-if="estaFavoritos" class="result__toggle-favorite" href="" v-on:click.prevent="RemoveraFavorito">Borrar favoritos <img src="img/eliminar.png" alt="" width="30" height="30"></a>
+                        <a v-else class="result__toggle-favorite" href="" v-on:click.prevent="addFavorito">Añadir favoritos <img src="img/agregar.png" alt="" width="30" height="30"></a>
                         <img v-bind:src="result.picture.data.url" alt="image" class="lg:h-60 md:h-47 w-full object-cover object-center">
                         <div class="p-6 hover:bg-indigo-700 hover:text-white transition duration-300 ease-in">
                             <h2 class="text-base font-medium text-indigo-300 mb-1">{{result.id}}</h2>
@@ -48,12 +55,13 @@
                                     </svg>
                                 </a>
                             </div>
-                        </div>
+                        </div>  
                     </div>
                 </div>
             </div>
         </div>
-        </div>
+        <!-- Error -->
+        <div v-if="error" class="result__error">Error</div>
     </section>
     <script src="js/Main.js"></script>
     <script>
